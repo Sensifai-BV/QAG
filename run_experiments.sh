@@ -8,12 +8,12 @@ echo "==========================================================="
 
 mkdir -p logs
 
-echo "[1/8] Running Section 7.2 (Scaling and Memory Benchmarks)..."
-echo "      (Note: Sinkhorn will intentionally trigger an OOM error at N=1,000,000. This is expected.)"
-python exp_7_2_scaling.py > logs/results_scaling.txt
+# echo "[1/8] Running Section 7.2 (Scaling and Memory Benchmarks)..."
+# echo "      (Note: Sinkhorn will intentionally trigger an OOM error at N=1,000,000. This is expected.)"
+# #python exp_7_2_scaling.py > logs/results_scaling.txt
 
 echo "[2/8] Running Section 7.3 (Accuracy-Runtime Tradeoff - N=100k)..."
-python exp_tradeoff_105.py > logs/results_tradeoff.txt
+#python exp_tradeoff_105.py > logs/results_tradeoff.txt
 
 echo "[3/8] Running Section 7.4 (Naive PyTorch Baselines & Gradient Validation)..."
 python exp_new_baselines.py > logs/results_baselines.txt
