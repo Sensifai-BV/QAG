@@ -19,7 +19,7 @@ echo "[3/8] Running Section 7.4 (Naive PyTorch Baselines & Gradient Validation).
 python exp_new_baselines.py > logs/results_baselines.txt
 
 echo "[4/8] Running POT Forward Exactness Validation..."
-python exp_pot_exactness.py > logs/results_pot_exactness.txt
+python exp_pot_heavy.py > logs/results_pot_exactness.txt
 
 echo "[5/8] Running End-to-End Multi-Seed Tasks (Regression & SW)..."
 python exp_multiseed.py > logs/results_multiseed.txt
