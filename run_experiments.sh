@@ -12,10 +12,12 @@ echo "==========================================================="
 mkdir -p logs
 
 echo "[1/6] Running Section 7.2 (Scaling and Memory Benchmarks)..."
+echo "      (Note: Sinkhorn will intentionally trigger an OOM error at N=1,000,000. This is expected.)"
 python exp_7_2_scaling.py > logs/results_scaling.txt
 echo "      -> Saved to logs/results_scaling.txt"
 
 echo "[2/6] Running Section 7.3 (Accuracy-Runtime Tradeoff - N=100k)..."
+echo "      (⏳ Warning: Computing the Sinkhorn blur sweep at N=100,000 takes about 2 to 3 minutes.)"
 python exp_tradeoff_105.py > logs/results_tradeoff.txt
 echo "      -> Saved to logs/results_tradeoff.txt"
 
