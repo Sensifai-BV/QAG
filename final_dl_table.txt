@@ -1,0 +1,9 @@
+Method	Slices (K)	Val Accuracy (up)	Val Class-SW (down)	Epoch Time (s) (down)	Peak GPU Mem (GB) (down)	Status
+Sinkhorn	16	83.9	215.480	10.8	0.1	OK
+Sinkhorn	64	83.7	191.658	42.0	0.1	Slow
+Sinkhorn	256	83.6	186.309	167.3	0.1	Slow
+Sinkhorn	1024	83.5	183.820	677.5	0.1	Slow
+QAG-STE	16	83.8	189.092	0.2	0.1	OK
+QAG-STE	64	83.6	177.446	0.2	0.1	OK
+QAG-STE	256	83.4	171.449	0.2	0.1	OK
+QAG-STE	1024	83.5	170.915	0.2	0.1	OK
