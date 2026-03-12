@@ -23,7 +23,7 @@ class SinkhornLoss(nn.Module):
             p=2, 
             blur=blur, 
             debias=False, 
-            backend="tensorized" # (or "online", whichever you are testing!)
+            backend="online" # Just 'exp_sliced_wasserstein.py' should be changed to 'tensorized'
         )
     def forward(self, x, y):
         batch_size = x.shape[0]
