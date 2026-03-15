@@ -15,9 +15,6 @@ This repository contains the official PyTorch implementation and experimental re
 * `exp_multiseed.py`: End-to-end task (Direct Distributional Optimization) evaluated over 5 random seeds to measure training convergence and runtime.
 * `exp_sliced_wasserstein_mlp.py`: End-to-end Deep Learning task embedding inputs into a class-specific Gaussian Mixture target using a many-1D Sliced-Wasserstein objective. 
 
-### ⚠️ Important Note on Section 7.2 (Scaling and Memory Wall)
-In the provided `run_experiments.sh` script, Step 1 and 8 (`exp_7_2_scaling.py` & `python exp_sliced_wasserstein_mlp.p`) is commented out by default to protect the evaluator's hardware. 
-
 **The Context:**
 Section 7.2 of the paper demonstrates the extreme memory bottleneck of standard entropic Optimal Transport (Sinkhorn) on a GPU. At $N=1,000,000$ with a batch size of 64, the tensorized backend requires allocating a dense distance matrix that mathematically demands hundreds of Terabytes of memory.
 
@@ -40,10 +37,20 @@ To verify the QAG scaling metrics and the Sinkhorn VRAM bottleneck without locki
 * `matplotlib`
 
 ## Reproducing the Results
-You can run the full suite of experiments sequentially using the provided bash script:
-```bash
-bash run_experiments.sh
-```
+The repository provides two execution paths to accommodate hardware constraints:
+
+**1. The Safe Subset (Recommended for Evaluators):**
+Runs the core benchmarks, tradeoff metrics, baselines, fast regression tasks, and plotting tools in under 5 minutes.
+`bash run_safe_subset.sh`
+
+**2. The Full Suite (Complete Reproduction):**
+Executes every script in the paper sequentially. 
+`bash run_full_suite.sh`
+
+### ⚠️ Hardware Assumptions & The Memory Wall
+The Full Suite executes Section 7.2 (`exp_7_2_scaling.py`) which is mathematically designed to trigger a `CUDA OutOfMemoryError` on GPUs with <= 24GB of VRAM (e.g., NVIDIA L4 or RTX 3090/4090). 
+Depending on your host operating system and swap space configuration, attempting to allocate Sinkhorn's $1,000,000 \times 1,000,000$ dense distance matrix may cause severe system hang or disk swap thrashing before correctly terminating. The Full Suite also runs the Sliced-Wasserstein deep learning baseline, which takes ~11 hours to compute Sinkhorn sequentially at $K=1024$ projections. This experiment is commented out too in un_safe_subset script.
+
 
 Note: The Deep Learning Sliced-Wasserstein experiment (exp_sliced_wasserstein_mlp.py) evaluates Sinkhorn at up to K=1024 slices. Due to the entropic baseline's computational bottleneck at high slice counts, this script may take several hours to complete over 20 epochs. QAG executes this same loop natively in seconds.
 
