@@ -14,10 +14,10 @@ os.environ["PYTHONWARNINGS"] = "ignore"
 
 # --- 1. Dataset Generation ---
 def generate_data(n_samples, device):
-    """Generates synthetic 4-class Gaussian input data in R^8[cite: 78, 141]."""
+    """Generates synthetic 4-class Gaussian input data in R^8."""
     X, Y = [], []
     samples_per_class = n_samples // 4
-    # Defined class means [cite: 118]
+    # Defined class means
     mu = [
         [2, 0, 0, 0, 0, 0, 0, 0],
         [-2, 0, 0, 0, 0, 0, 0, 0],
@@ -39,11 +39,10 @@ def generate_data(n_samples, device):
 
 # --- 2. Target Latent Distributions ---
 def sample_target_gmm(c, n_samples, device):
-    """Samples from class-specific 2-mode Gaussian mixtures in R^16[cite: 141]."""
+    """Samples from class-specific 2-mode Gaussian mixtures in R^16."""
     m1 = torch.zeros(16, device=device)
     m2 = torch.zeros(16, device=device)
-    
-    # Distinct centers for each class [cite: 119, 120]
+    # Distinct centers for each class
     if c == 0:
         m1[0], m2[1] = 3.0, 3.0
     elif c == 1:
@@ -53,17 +52,17 @@ def sample_target_gmm(c, n_samples, device):
     elif c == 3:
         m1[2], m2[3] = -3.0, -3.0
         
-    # 50/50 mixture [cite: 119]
+    # 50/50 mixture
     choices = torch.randint(0, 2, (n_samples,), device=device)
     centers = torch.where(choices.unsqueeze(1) == 0, m1, m2)
     
-    # Variance of 0.25 (std of 0.5) [cite: 88, 119]
+    # Variance of 0.25 (std of 0.5)
     noise = torch.randn(n_samples, 16, device=device) * 0.5
     return centers + noise
 
 # --- 3. Model Definition ---
 class MLP(nn.Module):
-    """MLP: 8 -> 64 -> 64 -> 16 plus linear classifier head[cite: 90, 141]."""
+    """MLP: 8 -> 64 -> 64 -> 16 plus linear classifier head"""
     def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
@@ -82,18 +81,18 @@ class MLP(nn.Module):
 
 # --- 4. Sliced Wasserstein Loss ---
 def sliced_wasserstein_1d_projections(Z_c, T_c, K, base_loss_fn, device):
-    """Computes 1D Wasserstein distances over K random projections[cite: 102]."""
+    """Computes 1D Wasserstein distances over K random projections"""
     if len(Z_c) == 0:
         return 0.0
-    # Sample K random unit vectors in R^16 [cite: 102]
+    # Sample K random unit vectors in R^16 
     theta = torch.randn(16, K, device=device)
     theta = theta / torch.norm(theta, dim=0, keepdim=True)
     
-    # Project both sets to 1D [cite: 102]
+    # Project both sets to 1D 
     a = torch.matmul(Z_c, theta)
     b = torch.matmul(T_c, theta)
     
-    # Calculate base 1D loss across all K projections [cite: 102]
+    # Calculate base 1D loss across all K projections
     a_T = a.t() 
     b_T = b.t() 
     
@@ -105,7 +104,7 @@ def run_experiment():
     
     print("Method\tSlices (K)\tVal Accuracy (up)\tVal Class-SW (down)\tEpoch Time (s) (down)\tPeak GPU Mem (GB) (down)\tStatus")
     
-    # Exact sweep and hyperparams requested [cite: 108, 111, 141]
+    # Exact sweep and hyperparams requested
     slice_counts = [16, 64, 256, 1024]
     methods = ['Sinkhorn', 'QAG-STE']
     n_epochs = 20
@@ -122,7 +121,7 @@ def run_experiment():
                 torch.manual_seed(seed)
                 np.random.seed(seed)
                 
-                # 10k train, 2k val balanced [cite: 80]
+                # 10k train, 2k val balanced
                 X_train, Y_train = generate_data(10000, device)
                 X_val, Y_val = generate_data(2000, device)
                 
@@ -169,7 +168,7 @@ def run_experiment():
                         # MOVED OUTSIDE THE MINI-BATCH LOOP
                         epoch_times.append(time.time() - start_time)
                     
-                    # Validation Evaluation [cite: 112, 113]
+                    # Validation Evaluation
                     model.eval()
                     with torch.no_grad():
                         emb_val, logits_val = model(X_val)
@@ -182,7 +181,7 @@ def run_experiment():
                             Z_c = emb_val[mask]
                             n_c = len(Z_c)
                             T_c = sample_target_gmm(c, n_c, device)
-                            # Large fixed evaluation slice count of 4096 [cite: 113, 114]
+                            # Large fixed evaluation slice count of 4096
                             val_sw_total += sliced_wasserstein_1d_projections(Z_c, T_c, 4096, QAGLoss().to(device), device).item()
                         val_sw_avg = val_sw_total / 4.0
                         
@@ -192,7 +191,7 @@ def run_experiment():
                     
                 except RuntimeError as e:
                     if "out of memory" in str(e).lower():
-                        status = "OOM" # [cite: 115]
+                        status = "OOM" 
                         break
                     else:
                         raise e
@@ -202,7 +201,7 @@ def run_experiment():
             else:
                 avg_time = np.mean(epoch_times)
                 if avg_time > 30.0:
-                    status = "Slow" # [cite: 115]
+                    status = "Slow" 
                 print(f"{method_name}\t{K}\t{np.mean(val_accs):.1f}\t{np.mean(val_sws):.3f}\t{avg_time:.1f}\t{np.max(mems):.1f}\t{status}")
 
 if __name__ == '__main__':
