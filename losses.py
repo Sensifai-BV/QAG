@@ -3,16 +3,42 @@ import torch.nn as nn
 import ot  # POT library
 from geomloss import SamplesLoss
 
+
+class QAG_STE(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, pred, target):
+        # 1. Standard exact forward: sort both
+        pred_sorted, pred_indices = torch.sort(pred, dim=-1)
+        target_sorted, _ = torch.sort(target, dim=-1)
+        
+        # 2. Save the sorting indices for the STE backward pass
+        ctx.save_for_backward(pred_indices, pred_sorted, target_sorted)
+        
+        # 3. Compute MSE and strictly use .mean() to standardize scales
+        loss = torch.mean((pred_sorted - target_sorted) ** 2)
+        return loss
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        pred_indices, pred_sorted, target_sorted = ctx.saved_tensors
+        
+        # 1. The STE Backward Surrogate: Gradient of MSE w.r.t the sorted tensor
+        grad_sorted = 2.0 * (pred_sorted - target_sorted) / pred_sorted.numel()
+        
+        # 2. Scatter gradients back to the original unsorted positions
+        grad_pred = torch.zeros_like(pred_sorted)
+        grad_pred.scatter_(-1, pred_indices, grad_sorted)
+        
+        # 3. Scale by incoming upstream gradients
+        return grad_pred * grad_output, None
+
+
 class QAGLoss(nn.Module):
-    """Exact 1D W2^2 Loss via Quantile Affine Geometry[cite: 9, 142, 163]."""
     def __init__(self):
         super().__init__()
 
-    def forward(self, x, y):
-        x_sorted, _ = torch.sort(x, dim=-1)
-        y_sorted, _ = torch.sort(y, dim=-1)
-        loss = torch.mean((x_sorted - y_sorted)**2, dim=-1)
-        return loss.sum()
+    def forward(self, pred, target):
+        return QAG_STE.apply(pred, target)
 
 class SinkhornLoss(nn.Module):
     """GeomLoss Sinkhorn wrapper for 1D tensors."""
