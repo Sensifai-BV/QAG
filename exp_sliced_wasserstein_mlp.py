@@ -150,10 +150,8 @@ def run_experiment():
                             optimizer.zero_grad()
                             emb, logits = model(x_b)
                             
-                            # Classification loss on true class label [cite: 99]
                             loss_ce = F.cross_entropy(logits, y_b)
                             
-                            # Class-conditional SW loss [cite: 99, 141]
                             loss_sw = 0.0
                             classes_in_batch = torch.unique(y_b)
                             for c in classes_in_batch:
@@ -168,6 +166,7 @@ def run_experiment():
                             total_loss.backward()
                             optimizer.step()
                             
+                        # MOVED OUTSIDE THE MINI-BATCH LOOP
                         epoch_times.append(time.time() - start_time)
                     
                     # Validation Evaluation [cite: 112, 113]
