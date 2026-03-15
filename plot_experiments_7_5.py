@@ -91,9 +91,9 @@ def main():
 
     fig, axes = plt.subplots(1, 3, figsize=(18, 5))
     
-    # Panel 1
+    # Panel 1: Use dynamic variables
     methods_A = ['QAG (Exact)', 'Sinkhorn (blur=0.05)']
-    times_A = [0.169, 30.515]
+    times_A = [dynamic_data["qag_calib_time"], dynamic_data["sinkhorn_calib_time"]]
     barsA = axes[0].bar(methods_A, times_A, color=['#2ca02c', '#d62728'])
 
     axes[0].set_ylabel('Training Time (seconds)')
@@ -102,25 +102,24 @@ def main():
 
     for i, (bar, v) in enumerate(zip(barsA, times_A)):
         x = bar.get_x() + bar.get_width()/2
-        if i == 1:  # red bar -> text inside
-            axes[0].text(x, v/1.6, f"{v}s",
-                         ha='center', va='top',
-                         color='white', fontweight='bold')
-        else:       # green bar -> text above
-            axes[0].text(x, v*1.3, f"{v}s",
-                         ha='center', va='bottom',
-                         fontweight='bold')
+        if i == 1:  
+            axes[0].text(x, v/1.6, f"{v}s", ha='center', va='top', color='white', fontweight='bold')
+        else:       
+            axes[0].text(x, v*1.3, f"{v}s", ha='center', va='bottom', fontweight='bold')
 
-    # Panel 2
+    # Panel 2: Inject dynamic variances into the title
     axes[1].hist(target, bins=60, density=True, alpha=0.3, color='gray', label='Target Distribution')
     axes[1].hist(qag_res, bins=60, density=True, histtype='step', linewidth=2, color='#2ca02c', label='QAG (Exact Matching)')
     axes[1].hist(sink_res, bins=60, density=True, histtype='step', linewidth=2, color='#d62728', linestyle='--', label='Sinkhorn (Washed Out)')
-    axes[1].set_title('Exp B: Histogram Mode Preservation\nTarget Var: 9.00 | QAG: 9.01 | Sink: 9.18')
+    
+    qag_var = dynamic_data["qag_hist_var"]
+    sink_var = dynamic_data["sinkhorn_hist_var"]
+    axes[1].set_title(f'Exp B: Histogram Mode Preservation\nTarget Var: 9.00 | QAG: {qag_var:.2f} | Sink: {sink_var:.2f}')
     axes[1].legend(loc='upper center')
 
-    # Panel 3
+    # Panel 3: Use dynamic variables
     methods_C = ['QAG Inner Loop', 'Sinkhorn Inner Loop']
-    times_C = [0.265, 23.341]
+    times_C = [dynamic_data["qag_sw_time"], dynamic_data["sinkhorn_sw_time"]]
     barsC = axes[2].bar(methods_C, times_C, color=['#2ca02c', '#d62728'])
 
     axes[2].set_ylabel('Training Time (seconds)')
@@ -129,14 +128,10 @@ def main():
 
     for i, (bar, v) in enumerate(zip(barsC, times_C)):
         x = bar.get_x() + bar.get_width()/2
-        if i == 1:  # red bar -> inside
-            axes[2].text(x, v/1.6, f"{v}s",
-                         ha='center', va='top',
-                         color='white', fontweight='bold')
-        else:       # green bar -> outside
-            axes[2].text(x, v*1.3, f"{v}s",
-                         ha='center', va='bottom',
-                         fontweight='bold')
+        if i == 1:  
+            axes[2].text(x, v/1.6, f"{v}s", ha='center', va='top', color='white', fontweight='bold')
+        else:       
+            axes[2].text(x, v*1.3, f"{v}s", ha='center', va='bottom', fontweight='bold')
 
     plt.tight_layout()
     plt.savefig('sinkhorn_vs_qag.png', dpi=300)
