@@ -16,7 +16,7 @@ def time_and_memory(loss_module, x, y, bwd=False, warmups=50, runs=200):
     for _ in range(warmups):
         loss = loss_module(x, y)
         if bwd:
-            loss.backward()
+            loss.mean().backward()
             x.grad.zero_()
             
     torch.cuda.synchronize()
