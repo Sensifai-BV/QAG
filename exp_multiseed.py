@@ -5,21 +5,41 @@ import math
 import numpy as np
 from losses import QAGLoss
 
-# Mock modules for the tasks
+class DistributionalRegressionMLP(nn.Module):
+    def __init__(self, input_dim=5, output_quantiles=1000):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, 64),
+            nn.ReLU(),
+            nn.Linear(64, 64),
+            nn.ReLU(),
+            nn.Linear(64, output_quantiles)
+        )
+    def forward(self, x):
+        return self.net(x)
+
 def run_regression_seed(seed, device):
     torch.manual_seed(seed)
-    N, B = 1000, 64
-    target = torch.randn(B, N, device=device)
-    source = nn.Parameter(torch.zeros(B, N, device=device))
-    opt = torch.optim.Adam([source], lr=0.1)
+    N_quantiles, B = 1000, 64
+    
+    # Genuine Regression Setup: Mapping X -> Y
+    X_train = torch.randn(B, 5, device=device)
+    # Target distribution is a Gaussian shifted by the sum of input features
+    shifts = X_train.sum(dim=1, keepdim=True)
+    Y_target = torch.randn(B, N_quantiles, device=device) + shifts
+    
+    model = DistributionalRegressionMLP(input_dim=5, output_quantiles=N_quantiles).to(device)
+    opt = torch.optim.Adam(model.parameters(), lr=0.01)
     loss_fn = QAGLoss().to(device)
     
     start = time.time()
     for _ in range(50):
         opt.zero_grad()
-        loss = loss_fn(source, target).mean()
+        Y_pred = model(X_train)
+        loss = loss_fn(Y_pred, Y_target).mean()
         loss.backward()
         opt.step()
+        
     return time.time() - start, loss.item()
 
 def run_sw_seed(seed, device):
@@ -46,14 +66,12 @@ if __name__ == "__main__":
     print("--- Change 5: Multi-Seed End-to-End Tasks (5 Seeds) ---")
     seeds = [42, 43, 44, 45, 46]
     
-    # Task 1
     t1_times, t1_losses = [], []
     for s in seeds:
         t, l = run_regression_seed(s, device)
         t1_times.append(t); t1_losses.append(l)
     print(f"Task 1 (Regression) | Time: {np.mean(t1_times):.3f}s ± {np.std(t1_times):.3f}s | Final Loss: {np.mean(t1_losses):.4f} ± {np.std(t1_losses):.4f}")
 
-    # Task 4
     t4_times, t4_losses = [], []
     for s in seeds:
         t, l = run_sw_seed(s, device)
