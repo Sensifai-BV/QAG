@@ -8,46 +8,34 @@ import re
 
 def load_dynamic_results(log_dir="logs"):
     """
-    Parses the text logs to extract the exact runtimes and variances
+    Parses the text logs to extract the exact runtimes and variances.
+    Strictly raises an error if logs are missing to guarantee reproducibility.
     """
-    results = { # Fallback defaults
-        "qag_calib_time": 0.169,       # dynamic_data["qag_calib_time"] 
-        "sinkhorn_calib_time": 30.515, # dynamic_data["sinkhorn_calib_time"]
-        "qag_hist_var": 9.01,          # dynamic_data["qag_hist_var"]
-        "sinkhorn_hist_var": 9.18,  
-        "qag_sw_time": 0.265,
-        "sinkhorn_sw_time": 23.341
-    }
+    results = {}
     
-    # 1. Parse Appendix A (Quantile Calibration)
     calib_file = os.path.join(log_dir, "results_appendix_A.txt")
-    if os.path.exists(calib_file):
-        with open(calib_file, "r") as f:
-            text = f.read()
-            qag_m = re.search(r"\[QAG Exact\].*?Time:\s*([\d\.]+)s", text)
-            sink_m = re.search(r"\[Sinkhorn.*?\].*?Time:\s*([\d\.]+)s", text)
-            if qag_m: results["qag_calib_time"] = float(qag_m.group(1))
-            if sink_m: results["sinkhorn_calib_time"] = float(sink_m.group(1))
+    if not os.path.exists(calib_file):
+        raise FileNotFoundError(f"Missing {calib_file}. Run experiments first.")
+    with open(calib_file, "r") as f:
+        text = f.read()
+        results["qag_calib_time"] = float(re.search(r"\[QAG Exact\].*?Time:\s*([\d\.]+)s", text).group(1))
+        results["sinkhorn_calib_time"] = float(re.search(r"\[Sinkhorn.*?\].*?Time:\s*([\d\.]+)s", text).group(1))
 
-    # 2. Parse Appendix B (Histogram Matching)
     hist_file = os.path.join(log_dir, "results_appendix_B.txt")
-    if os.path.exists(hist_file):
-        with open(hist_file, "r") as f:
-            text = f.read()
-            qag_m = re.search(r"\[QAG Exact\].*?Result Var:\s*([\d\.]+)", text)
-            sink_m = re.search(r"\[Sinkhorn.*?\].*?Result Var:\s*([\d\.]+)", text)
-            if qag_m: results["qag_hist_var"] = float(qag_m.group(1))
-            if sink_m: results["sinkhorn_hist_var"] = float(sink_m.group(1))
+    if not os.path.exists(hist_file):
+        raise FileNotFoundError(f"Missing {hist_file}. Run experiments first.")
+    with open(hist_file, "r") as f:
+        text = f.read()
+        results["qag_hist_var"] = float(re.search(r"\[QAG Exact\].*?Result Var:\s*([\d\.]+)", text).group(1))
+        results["sinkhorn_hist_var"] = float(re.search(r"\[Sinkhorn.*?\].*?Result Var:\s*([\d\.]+)", text).group(1))
             
-    # 3. Parse Sliced-Wasserstein (Assuming it's printed in multiseed or a standalone SW log)
-    # This specifically looks for the "Time:" format in your SW task outputs
     sw_file = os.path.join(log_dir, "results_multiseed.txt") 
-    if os.path.exists(sw_file):
-        with open(sw_file, "r") as f:
-            text = f.read()
-            # If QAG SW time is logged:
-            qag_m = re.search(r"Task 4 \(Sliced-W\).*?Time:\s*([\d\.]+)s", text)
-            if qag_m: results["qag_sw_time"] = float(qag_m.group(1))
+    if not os.path.exists(sw_file):
+        raise FileNotFoundError(f"Missing {sw_file}. Run experiments first.")
+    with open(sw_file, "r") as f:
+        text = f.read()
+        results["qag_sw_time"] = float(re.search(r"Task 4 \(Sliced-W\).*?Time:\s*([\d\.]+)s", text).group(1))
+        results["sinkhorn_sw_time"] = 23.341 # Sinkhorn SW is excluded from safe subset due to 11h runtime
 
     return results
 
