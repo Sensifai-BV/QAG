@@ -16,7 +16,7 @@ This repository contains the official PyTorch implementation and experimental re
 * `exp_sliced_wasserstein_mlp.py`: End-to-end Deep Learning task embedding inputs into a class-specific Gaussian Mixture target using a many-1D Sliced-Wasserstein objective. 
 
 ### ⚠️ Important Note on Section 7.2 (Scaling and Memory Wall)
-In the provided `run_experiments.sh` script, Step 1 (`exp_7_2_scaling.py`) is commented out by default to protect the evaluator's hardware. 
+In the provided `run_experiments.sh` script, Step 1 and 8 (`exp_7_2_scaling.py` & `python exp_sliced_wasserstein_mlp.p`) is commented out by default to protect the evaluator's hardware. 
 
 **The Context:**
 Section 7.2 of the paper demonstrates the extreme memory bottleneck of standard entropic Optimal Transport (Sinkhorn) on a GPU. At $N=1,000,000$ with a batch size of 64, the tensorized backend requires allocating a dense distance matrix that mathematically demands hundreds of Terabytes of memory.
