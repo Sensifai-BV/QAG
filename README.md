@@ -49,7 +49,7 @@ Executes every script in the paper sequentially.
 
 ### ⚠️ Hardware Assumptions & The Memory Wall
 The Full Suite executes Section 7.2 (`exp_7_2_scaling.py`) which is mathematically designed to trigger a `CUDA OutOfMemoryError` on GPUs with <= 24GB of VRAM (e.g., NVIDIA L4 or RTX 3090/4090). 
-Depending on your host operating system and swap space configuration, attempting to allocate Sinkhorn's $1,000,000 \times 1,000,000$ dense distance matrix may cause severe system hang or disk swap thrashing before correctly terminating. The Full Suite also runs the Sliced-Wasserstein deep learning baseline, which takes ~11 hours to compute Sinkhorn sequentially at $K=1024$ projections. This experiment is commented out too in un_safe_subset script.
+Depending on your host operating system and swap space configuration, attempting to allocate Sinkhorn's $1,000,000 \times 1,000,000$ dense distance matrix may cause severe system hang or disk swap thrashing before correctly terminating. The Full Suite also runs the Sliced-Wasserstein deep learning baseline, which takes ~11 hours to compute Sinkhorn sequentially at $K=1024$ projections. This experiment is removed in un_safe_subset script.
 
 
 Note: The Deep Learning Sliced-Wasserstein experiment (exp_sliced_wasserstein_mlp.py) evaluates Sinkhorn at up to K=1024 slices. Due to the entropic baseline's computational bottleneck at high slice counts, this script may take several hours to complete over 20 epochs. QAG executes this same loop natively in seconds.
