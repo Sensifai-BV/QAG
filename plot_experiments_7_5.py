@@ -105,7 +105,7 @@ def main():
     axes[1].set_title(f'Exp B: Histogram Mode Preservation\nTarget Var: 9.00 | QAG: {qag_var:.2f} | Sink: {sink_var:.2f}')
     axes[1].legend(loc='upper center')
 
-    # Panel 3: Use dynamic variables
+    # Panel 3:
     methods_C = ['QAG Inner Loop', 'Sinkhorn Inner Loop']
     times_C = [dynamic_data["qag_sw_time"], dynamic_data["sinkhorn_sw_time"]]
     barsC = axes[2].bar(methods_C, times_C, color=['#2ca02c', '#d62728'])
@@ -117,10 +117,9 @@ def main():
     for i, (bar, v) in enumerate(zip(barsC, times_C)):
         x = bar.get_x() + bar.get_width()/2
         if i == 1:  
-            axes[2].text(x, v/1.6, f"{v}s", ha='center', va='top', color='white', fontweight='bold')
+            axes[2].text(x, v/1.6, f"{v}s*\n(Paper Ref)", ha='center', va='top', color='white', fontweight='bold')
         else:       
             axes[2].text(x, v*1.3, f"{v}s", ha='center', va='bottom', fontweight='bold')
-
     plt.tight_layout()
     plt.savefig('sinkhorn_vs_qag.png', dpi=300)
     print("Plot successfully saved as 'sinkhorn_vs_qag.png'!")
