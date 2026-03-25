@@ -12,7 +12,7 @@ This repository contains the official PyTorch implementation and experimental re
 * `exp_tradeoff_105.py`: Evaluates the accuracy-runtime tradeoff of entropic OT (Sinkhorn) against the exact QAG reference.
 * `exp_new_baselines.py`: Contains comparisons against a naive PyTorch exact sort baseline and the finite-difference directional gradient check.
 * `exp_pot_heavy.py`: Forward correctness validation against the POT (Python Optimal Transport) exact 1D reference across continuous, bimodal, and heavy-tailed distributions.
-* `exp_multiseed.py`: End-to-end task (Direct Distributional Optimization) evaluated over 5 random seeds to measure training convergence and runtime.
+* `exp_multiseed.py`: End-to-end task (Distributional Regression) evaluated over 5 random seeds to measure training convergence and runtime.
 * `exp_sliced_wasserstein_mlp.py`: End-to-end Deep Learning task embedding inputs into a class-specific Gaussian Mixture target using a many-1D Sliced-Wasserstein objective. 
 
 **The Context:**
