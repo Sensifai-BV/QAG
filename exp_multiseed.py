@@ -40,7 +40,7 @@ def run_regression_seed(seed, device):
         loss.backward()
         opt.step()
         
-    return time.time() - start, loss.item()
+    return (time.time() - start) / 50.0, loss.item()
 
 def run_sw_seed(seed, device):
     torch.manual_seed(seed)
@@ -59,7 +59,7 @@ def run_sw_seed(seed, device):
         loss = loss_fn(p_src, p_tgt).mean()
         loss.backward()
         opt.step()
-    return time.time() - start, loss.item()
+    return (time.time() - start) / 50.0, loss.item()
 
 if __name__ == "__main__":
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
