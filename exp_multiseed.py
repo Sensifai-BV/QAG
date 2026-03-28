@@ -70,10 +70,10 @@ if __name__ == "__main__":
     for s in seeds:
         t, l = run_regression_seed(s, device)
         t1_times.append(t); t1_losses.append(l)
-    print(f"Task 1 (Regression) | Time: {np.mean(t1_times):.3f}s ± {np.std(t1_times):.3f}s | Final Loss: {np.mean(t1_losses):.4f} ± {np.std(t1_losses):.4f}")
+    print(f"Task 1 (Regression) | Time: {np.mean(t1_times):.4f}s ± {np.std(t1_times):.4f}s | Final Loss: {np.mean(t1_losses):.4f} ± {np.std(t1_losses):.4f}")
 
     t4_times, t4_losses = [], []
     for s in seeds:
         t, l = run_sw_seed(s, device)
         t4_times.append(t); t4_losses.append(l)
-    print(f"Task 4 (Sliced-W)   | Time: {np.mean(t4_times):.3f}s ± {np.std(t4_times):.3f}s | Final Loss: {np.mean(t4_losses):.4f} ± {np.std(t4_losses):.4f}")
+    print(f"Task 4 (Sliced-W)   | Time: {np.mean(t4_times):.4f}s ± {np.std(t4_times):.4f}s | Final Loss: {np.mean(t4_losses):.4f} ± {np.std(t4_losses):.4f}")
