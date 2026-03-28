@@ -117,7 +117,7 @@ def main():
     for i, (bar, v) in enumerate(zip(barsC, times_C)):
         x = bar.get_x() + bar.get_width()/2
         if i == 1:  
-            axes[2].text(x, v/1.6, f"{v}s*\n(Paper Ref)", ha='center', va='top', color='white', fontweight='bold')
+            axes[2].text(x, v/1.6, f"{v}s*\n(Paper Ref)", ha='center', va='top', color='white', fontweight='bold', fontsize=10)
         else:       
             axes[2].text(x, v*1.3, f"{v}s", ha='center', va='bottom', fontweight='bold')
     plt.tight_layout()
